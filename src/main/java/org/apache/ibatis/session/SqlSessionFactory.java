@@ -1,4 +1,4 @@
-package org.mybatis.spring;
+package org.apache.ibatis.session;
 
 import javax.sql.DataSource;
 
@@ -6,7 +6,9 @@ import javax.sql.DataSource;
  * @Author: cxx
  * @Date: 2019/9/18 0:39
  */
-public class SqlSessionFactoryBean {
+public class SqlSessionFactory {
+    private static SqlSessionFactory instance;
+
     private String configLocation;
 
     private DataSource dataSource;

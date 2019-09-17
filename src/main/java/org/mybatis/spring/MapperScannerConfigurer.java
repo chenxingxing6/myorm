@@ -1,4 +1,4 @@
-package org.mybatis.spring.mapper;
+package org.mybatis.spring;
 
 /**
  * @Author: cxx
