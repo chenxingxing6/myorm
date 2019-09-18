@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <mapper namespace="com.test.mapper.UserMapper">
   <select id="getUserName" parameterType="java.lang.String" resultType ="com.test.entry.User">
-    select * from sys_role id = #{id}
+    select * from sys_role where role_id = #{id}
   </select>
 </mapper>

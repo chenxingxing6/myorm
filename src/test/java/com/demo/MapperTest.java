@@ -20,7 +20,7 @@ public class MapperTest {
 
     @Test
     public void test01(){
-        User user = userMapper.getUserName("1000");
+        User user = userMapper.getUserName("1");
         System.out.println(JSON.toJSONString(user));
     }
 
@@ -31,7 +31,7 @@ public class MapperTest {
 
         SqlSessionFactory factory = builder.get().build("mapper");
         UserMapper userMapper = factory.getMapper(UserMapper.class);
-        User user = userMapper.getUserName("100");
+        User user = userMapper.getUserName("1");
         System.out.println(JSON.toJSONString(user));
     }
 }
