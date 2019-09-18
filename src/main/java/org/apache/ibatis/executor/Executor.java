@@ -1,11 +1,13 @@
 package org.apache.ibatis.executor;
 
-import com.test.entry.User;
 import org.apache.ibatis.Function;
 import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.util.JdbcUtil;
 
 import java.lang.reflect.Field;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -26,15 +28,10 @@ public class Executor {
     public <T> T selectOne(String id, Object parameter, Connection connection){
         Function function = functionMap.get(id);
         try {
-            /*String sql = "select * from sys_role";
-            Statement stmt = connection.createStatement();
-            ResultSet rs = stmt.executeQuery(sql);
-            */
             String sql = function.getSql().replace("#{id}", "?");
-            PreparedStatement ps = connection.prepareStatement(sql);
-            ps.setString(1, parameter.toString());
-            ResultSet resultSet = ps.executeQuery();
-
+            List<Object> params = new ArrayList<>();
+            params.add(parameter);
+            ResultSet resultSet = JdbcUtil.query(sql, params, connection);
             Class clazz = Class.forName(function.getResultType());
             this.sqlSessionProxy.setUse(true);
             return (T)handler(resultSet, clazz);

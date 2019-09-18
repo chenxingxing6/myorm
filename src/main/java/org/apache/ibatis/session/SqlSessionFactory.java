@@ -3,6 +3,7 @@ package org.apache.ibatis.session;
 import org.apache.ibatis.Function;
 import org.apache.ibatis.config.BatisConfig;
 import org.apache.ibatis.executor.Executor;
+import org.apache.ibatis.util.JdbcUtil;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 
@@ -28,13 +29,9 @@ public class SqlSessionFactory {
     private List<String> mapperxmls;
     private List<SqlSession> sqlSessions;
     private Map<String, Function> functionMap;
-    private BatisConfig config;
 
-    private String configLocation;
-
-    private DataSource dataSource;
-
-    private String[] mapperLocations;
+    private int maxConnects = 100;
+    private int incrementCount = 10;
 
     private SqlSessionFactory(){}
 
@@ -51,17 +48,9 @@ public class SqlSessionFactory {
         this.sqlSessions = new ArrayList<>();
         this.mapperxmls = new ArrayList<>();
 
-        // 全局配置
-        config.jdbcDriver = "com.mysql.jdbc.Driver";
-        config.jdbcUrl = "jdbc:mysql://60.205.212.196:3306/cloud_disk?useUnicode=true";
-        config.username = "disk";
-        config.password = "123456";
-        config.initConnectCount = 10;
-        config.maxConnects = 100;
-        config.incrementCount = 10;
-
         // 遍历mapper
         doScanClass(mapperPackage);
+
         initMapper();
     }
 
@@ -96,9 +85,8 @@ public class SqlSessionFactory {
                 if (!sqlSession.isUse()){
                     Connection conn = sqlSession.getConnection();
                     try {
-                        if (!conn.isValid(0)){
-                            Connection connection = DriverManager.getConnection(config.jdbcUrl, config.username, config.password);
-                            sqlSession.setConnection(connection);
+                        if (!conn.isValid(3)){
+                            sqlSession.setConnection(JdbcUtil.getConn());
                         }
                     }catch (Exception e){
                         e.printStackTrace();
@@ -108,22 +96,21 @@ public class SqlSessionFactory {
                 return sqlSession;
             }
             // 根据配置是否增加对应数量的连接
-            if (sqlSessions.size() <= config.maxConnects - config.incrementCount) {
-                createSqlSession(config.incrementCount);
-            }else if ((sqlSessions.size() < config.maxConnects) && (sqlSessions.size() > config.maxConnects - config.incrementCount)){
-                createSqlSession(config.maxConnects - sqlSessions.size());
+            if (sqlSessions.size() <= maxConnects - incrementCount) {
+                createSqlSession(incrementCount);
+            }else if ((sqlSessions.size() < maxConnects) && (sqlSessions.size() > maxConnects - incrementCount)){
+                createSqlSession(maxConnects - sqlSessions.size());
             }
         }
     }
 
     private void createSqlSession(int count){
-        if (config.maxConnects > 0 && config.maxConnects < sqlSessions.size()){
+        if (maxConnects > 0 && maxConnects < sqlSessions.size()){
             throw new RuntimeException("超出最大的连接数");
         }
         try {
             for (int i = 0; i < count; i++) {
-                Connection connection = DriverManager.getConnection(config.jdbcUrl, config.username, config.password);
-                sqlSessions.add(new SqlSession(this, connection, false));
+                sqlSessions.add(new SqlSession(this, JdbcUtil.getConn(), false));
             }
         }catch (Exception e){
             e.printStackTrace();

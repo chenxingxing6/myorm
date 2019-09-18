@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<mapper namespace="com.test.mapper.RoleMapper">
+  <select id="getRoleById" parameterType="java.lang.Long" resultType ="com.test.entry.Role">
+    select * from sys_role where role_id = #{id}
+  </select>
+</mapper>

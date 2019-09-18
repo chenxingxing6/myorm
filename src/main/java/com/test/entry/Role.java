@@ -7,7 +7,7 @@ import java.util.Date;
  * @Author: cxx
  * @Date: 2019/9/18 12:37
  */
-public class User implements Serializable {
+public class Role implements Serializable {
     private Long roleId;
 
     private String roleName;

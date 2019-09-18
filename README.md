@@ -1,7 +1,6 @@
 ## 手写ORM
 ---
 
-
 ```sql
 CREATE TABLE `sys_role` (
   `role_id` bigint(20) NOT NULL AUTO_INCREMENT,
