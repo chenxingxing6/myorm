@@ -1,7 +1,6 @@
 ## 手写ORM
 ---
 
----
 
 ```sql
 CREATE TABLE `sys_role` (
@@ -14,6 +13,7 @@ CREATE TABLE `sys_role` (
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 COMMENT='角色'
 ```
 
+---
 ```java
 package com.test.entry;
 
