@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper SYSTEM "myorm.dtd">
 <mapper namespace="com.test.mapper.RoleMapper">
   <select id="getRoleById" parameterType="java.lang.Long" resultType ="com.test.entry.Role">
     select * from sys_role where role_id = #{id}
   </select>
+
+  <delete id="deleteById" parameterType="java.lang.Long" resultType="java.lang.Integer">
+    delete sys_role where role_id = #{id}
+  </delete>
 </mapper>

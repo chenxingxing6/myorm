@@ -1,17 +1,19 @@
 package org.apache.ibatis.session;
 
+import com.sun.xml.internal.ws.util.xml.XmlUtil;
 import org.apache.ibatis.Function;
 import org.apache.ibatis.config.BatisConfig;
 import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.util.JdbcUtil;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
+import org.xml.sax.EntityResolver;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 import javax.management.RuntimeOperationsException;
 import javax.sql.DataSource;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
+import java.io.*;
 import java.lang.reflect.Proxy;
 import java.net.URL;
 import java.sql.Connection;
@@ -127,13 +129,23 @@ public class SqlSessionFactory {
             return;
         }
         for (String mappxmlPath : mapperxmls) {
-            this.getMapper(mappxmlPath);
+            if (mappxmlPath.endsWith(".xml")){
+                this.getMapper(mappxmlPath);
+            }
         }
     }
 
     private void getMapper(String xmlPath){
         try {
-            Element root = new SAXReader().read(new FileInputStream(xmlPath)).getRootElement();
+            SAXReader reader = new SAXReader();
+            reader.setValidation(false);
+            reader.setEntityResolver(new EntityResolver() {
+                @Override
+                public InputSource resolveEntity(String publicId, String systemId) throws SAXException, IOException {
+                    return new InputSource(new ByteArrayInputStream("<?xml version='1.0' encoding='UTF-8'?>".getBytes()));
+                }
+            });
+            Element root = reader.read(new FileInputStream(xmlPath)).getRootElement();
             for(Iterator iterator = root.elementIterator(); iterator.hasNext();){
                 Function function = new Function();
                 Element element = (Element) iterator.next();
