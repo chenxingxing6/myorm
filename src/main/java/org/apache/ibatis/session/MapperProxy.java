@@ -17,6 +17,6 @@ public class MapperProxy implements InvocationHandler {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        return sqlSession.selectOne(method.getName(), String.valueOf(args[0]));
+        return sqlSession.run(method, args);
     }
 }

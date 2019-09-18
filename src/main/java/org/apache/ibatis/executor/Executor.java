@@ -1,14 +1,16 @@
 package org.apache.ibatis.executor;
 
+import javafx.util.Pair;
 import org.apache.ibatis.Function;
+import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.util.JdbcUtil;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -19,18 +21,48 @@ import java.util.regex.Pattern;
 public class Executor {
     private SqlSession sqlSessionProxy;
     private Map<String, Function> functionMap;
+    private static Pattern pattern = Pattern.compile("\\#\\{(.+?)\\}");
 
     public Executor(Map<String, Function> functionMap, SqlSession sqlSession){
         this.functionMap = functionMap;
         this.sqlSessionProxy = sqlSession;
     }
 
-    public <T> T selectOne(String id, Object parameter, Connection connection){
-        Function function = functionMap.get(id);
+    public <T> T run(Method method, Object[] args, Connection connection){
+        Function function = functionMap.get(method.getName());
+        if (function == null){
+            throw new RuntimeException("MapperXml配置文件有误");
+        }
         try {
-            String sql = function.getSql().replace("#{id}", "?");
+            Map<Integer/*位置序号*/, Pair<String/*key*/, String/*type*/>> indexParamMap = new HashMap<>();
+            List<String> annotationParams = new ArrayList<>();
+            Annotation[][] annotations = method.getParameterAnnotations();
+            for (Annotation[] annotation : annotations) {
+                for (Annotation a : annotation) {
+                    if (a instanceof Param){
+                        Param param = (Param) a;
+                        annotationParams.add(param.value());
+                    }
+                }
+            }
+            if (!annotationParams.isEmpty()){
+                if (annotationParams.size() != method.getParameterTypes().length){
+                    throw new RuntimeException("参数个数不匹配");
+                }
+                for (int i = 0; i < method.getParameterTypes().length; i++) {
+                    String typeName = method.getParameterTypes()[i].getTypeName();
+                    Pair<String, String> pair= new Pair<>(annotationParams.get(i), typeName);
+                    indexParamMap.put(i+1, pair);
+                }
+                function.setIndexParamMap(indexParamMap);
+            }
+            Matcher matcher = pattern.matcher(function.getSql());
+            while (matcher.find()){
+                String key = matcher.group(1);
+            }
+            String sql = function.getSql().replaceAll("\\#\\{(.+?)\\}", "?");
             List<Object> params = new ArrayList<>();
-            params.add(parameter);
+            params.addAll(Arrays.asList(args));
             ResultSet resultSet = JdbcUtil.query(sql, params, connection);
             Class clazz = Class.forName(function.getResultType());
             this.sqlSessionProxy.setUse(true);

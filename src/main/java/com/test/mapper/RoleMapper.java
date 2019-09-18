@@ -1,6 +1,7 @@
 package com.test.mapper;
 
 import com.test.entry.Role;
+import org.apache.ibatis.annotations.Param;
 
 /**
  * @Author: cxx
@@ -8,4 +9,6 @@ import com.test.entry.Role;
  */
 public interface RoleMapper {
     public Role getRoleById(Long id);
+
+    public Role getRoleByIdAndDeptId(@Param("id") Long id, @Param("deptId") Long deptId);
 }

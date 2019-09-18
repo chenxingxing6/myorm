@@ -2,6 +2,7 @@ package org.apache.ibatis.session;
 
 import org.apache.ibatis.executor.Executor;
 
+import java.lang.reflect.Method;
 import java.sql.Connection;
 
 /**
@@ -21,9 +22,9 @@ public class SqlSession {
         this.isUse = isUse;
     }
 
-    public <T> T selectOne(String id, Object parameter){
+    public <T> T run(Method method, Object[] args){
         this.isUse = true;
-        return executor.selectOne(id, parameter, connection);
+        return executor.run(method, args, connection);
     }
 
     public SqlSessionFactory getSqlSessionFactory() {
