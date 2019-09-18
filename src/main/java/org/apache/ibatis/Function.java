@@ -9,6 +9,7 @@ public class Function {
     private String sqlType;
     private String functionName;
     private String resultType;
+    private String parameterType;
 
     public String getSql() {
         return sql;
@@ -40,5 +41,13 @@ public class Function {
 
     public void setResultType(String resultType) {
         this.resultType = resultType;
+    }
+
+    public String getParameterType() {
+        return parameterType;
+    }
+
+    public void setParameterType(String parameterType) {
+        this.parameterType = parameterType;
     }
 }
