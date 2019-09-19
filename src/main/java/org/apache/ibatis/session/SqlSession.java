@@ -15,8 +15,8 @@ public class SqlSession {
     private Executor executor;
     private boolean isUse = false;
 
-    public SqlSession(SqlSessionFactory sqlSessonFactory, Connection connection, boolean isUse) {
-        this.sqlSessionFactory = sqlSessionFactory;
+    public SqlSession(SqlSessionFactory factory, Connection connection, boolean isUse) {
+        this.sqlSessionFactory = factory;
         this.connection = connection;
         this.executor = this.sqlSessionFactory.getExecutor(this);
         this.isUse = isUse;

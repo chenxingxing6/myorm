@@ -19,7 +19,7 @@ import java.util.regex.Pattern;
  * @Author: cxx
  * @Date: 2019/9/18 12:42
  */
-public class MapperTest {
+public class MapperTest{
     private RoleMapper roleMapper;
 
     @Before
@@ -41,15 +41,6 @@ public class MapperTest {
 
         Role role2 = roleMapper.getRoleByIdAndDeptId(1L, 34L);
         System.out.println("@Param注解："+JSON.toJSONString(role2));
-    }
-
-    /**
-     * 删除
-     */
-    @Test
-    public void test02(){
-        int result = roleMapper.deleteById(36L);
-        System.out.println(result >= 1 ? "删除成功" : "删除失败");
     }
 
     /**
@@ -76,8 +67,17 @@ public class MapperTest {
         System.out.println(result >= 1 ? "修改成功" : "修改失败");
     }
 
+    /**
+     * 删除
+     */
+    @Test
+    public void test02(){
+        int result = roleMapper.deleteById(10L);
+        System.out.println(result >= 1 ? "删除成功" : "删除失败");
+    }
 
-    public static void main(String[] args) {
+
+    /*public static void main(String[] args) {
         String sql = "select * from sys_role where role_id = #{id} and dept_id = #{dept_id}";
         String regex = "\\#\\{(.+?)\\}";
         Pattern pattern = Pattern.compile(regex);
@@ -100,7 +100,7 @@ public class MapperTest {
         }catch (Exception e){
             e.printStackTrace();
         }
-    }
+    }*/
 }
 
 
