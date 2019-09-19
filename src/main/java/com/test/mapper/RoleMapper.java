@@ -13,4 +13,6 @@ public interface RoleMapper {
     public Role getRoleByIdAndDeptId(Long id, @Param("deptId") Long deptId);
 
     public int deleteById(Long id);
+
+    public int insert(@Param("role") Role role);
 }

@@ -125,14 +125,14 @@ public class JdbcUtil {
         return resultSet;
     }
 
-    public static boolean execute(String sql, List<Object> params, Connection c){
+    public static Integer execute(String sql, List<Object> params, Connection c){
         if (c != null){
             conn = c;
         }
         if (sql == null || sql.trim().isEmpty() || sql.trim().toLowerCase().startsWith("select")){
             throw new RuntimeException("你的SQL语句为空或有误");
         }
-        boolean result = false;
+        int result = 0;
         sql = sql.trim();
         sql = sql.toLowerCase();
         String prefix = sql.substring(0, sql.indexOf(" "));
@@ -145,9 +145,8 @@ public class JdbcUtil {
                 for (int i = 0; i < params.size(); i++) {
                     ps.setObject(i + 1, typeof(params.get(i)));
                 }
-                ps.executeUpdate();
+                result = ps.executeUpdate();
                 commit(conn);
-                result = true;
             }catch (Exception e){
                 System.out.println(prefix + "执行失败 " + e.getMessage());
                 rallback(conn);
@@ -157,18 +156,15 @@ public class JdbcUtil {
             Connection conn = null;
             try {
                 conn = st.getConnection();
-                st.executeUpdate(sql);
+                result = st.executeUpdate(sql);
                 commit(conn);
-                result = true;
             }catch (Exception e){
                 System.out.println(prefix + "执行失败 " + e.getMessage());
                 rallback(conn);
             }
         }
-
         return result;
     }
-
 
 
     /**
@@ -266,6 +262,9 @@ public class JdbcUtil {
      */
     private static Object typeof(Object o) {
         Object r = o;
+        if (o == null){
+            return r;
+        }
         if (o instanceof java.sql.Timestamp) {
             return r;
         }

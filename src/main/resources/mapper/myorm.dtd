@@ -20,3 +20,9 @@ id CDATA #REQUIRED
 parameterMap CDATA #IMPLIED
 parameterType CDATA #IMPLIED
 >
+
+<!ATTLIST insert
+id CDATA #REQUIRED
+parameterMap CDATA #IMPLIED
+parameterType CDATA #IMPLIED
+>

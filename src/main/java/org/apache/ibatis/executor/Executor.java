@@ -40,17 +40,34 @@ public class Executor {
             List<Object> parseArgs = new ArrayList<>();
             Matcher matcher = pattern.matcher(function.getSql());
             Map<String, Object> paramMap = function.getParamMap();
+
+            // mapperxml参数个数
+            int xmlParamCount = 0;
+            while (matcher.find()){
+                xmlParamCount++;
+            }
+
             int i = 0;
+            matcher = pattern.matcher(function.getSql());
             while (matcher.find()){
                 String key = matcher.group(1);
                 if (paramMap.get(key) !=null){
                     parseArgs.add(paramMap.get(key));
                 }else {
-                    parseArgs.add(paramMap.get(i + ""));
+                    // 参数为对象，和xml里面的字段一一映射
+                    if (paramMap.entrySet().size() != xmlParamCount){
+                        // TODO: 2019/9/19
+                    }else {
+                        parseArgs.add(paramMap.get(i + ""));
+                    }
                 }
                 i++;
             }
             String sql = function.getSql().replaceAll(regex, "?");
+            if (!isQuery(sql)){
+                this.sqlSessionProxy.setUse(true);
+                return (T) JdbcUtil.execute(sql, parseArgs, connection);
+            }
             ResultSet resultSet = JdbcUtil.query(sql, parseArgs, connection);
             Class clazz = Class.forName(function.getResultType());
             this.sqlSessionProxy.setUse(true);
@@ -60,6 +77,29 @@ public class Executor {
             this.sqlSessionProxy.setUse(false);
             return null;
         }
+    }
+
+    private boolean isQuery(String sql){
+        sql = sql.toLowerCase();
+        String prefix = sql.substring(0, sql.indexOf(" "));
+        switch (prefix){
+            case "create":
+            case "alter":
+            case "drop":
+            case "truncate":
+            case "insert":
+            case "update":
+            case "delete":{
+                return false;
+            }
+            case "select":{
+                return true;
+            }
+            default:{
+                break;
+            }
+        }
+        return false;
     }
 
     /**
