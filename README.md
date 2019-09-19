@@ -15,7 +15,7 @@
 2.qlSession是单线程对象，因为它是非线程安全的
 
 
-![avatar]("")
+![avatar]("https://github.com/chenxingxing6/myorm/blob/master/img/1.jpg")
 
 ###### 流程描述：  
 1.加载Mybatis全局配置文件并解析，生成Configuration对象和MapperdStatement  
@@ -26,7 +26,15 @@
 ---
 
 #### 三、MyORM实现
+![avatar]("https://github.com/chenxingxing6/myorm/blob/master/img/2.jpg")
 
+##### 我的实现思路
+1.解析配置文件，初始化数据库连接，创建sqlSession池，交给SqlSessionFactory管理   
+2.创建Execute,底层调用JDBC操作数据库   
+3.创建MapperProxy代理对象，动态代理Mapper接口   
+4.大体架子打好后，可以继续完善，比如@Param注解...
+
+---
 
 
 ```sql
