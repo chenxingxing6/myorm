@@ -51,11 +51,15 @@ public class Executor {
             matcher = pattern.matcher(function.getSql());
             while (matcher.find()){
                 String key = matcher.group(1);
+                String prefix = key.contains(".") == true ? key.split("\\.")[0] : null;
+                key = key.contains(".") == true ? key.split("\\.")[1] : key;
                 if (paramMap.get(key) !=null){
                     parseArgs.add(paramMap.get(key));
                 }else {
                     // 参数为对象，和xml里面的字段一一映射
                     if (paramMap.entrySet().size() != xmlParamCount){
+                        Object obj = paramMap.get(prefix);
+                        parseArgs.add("");
                         // TODO: 2019/9/19
                     }else {
                         parseArgs.add(paramMap.get(i + ""));

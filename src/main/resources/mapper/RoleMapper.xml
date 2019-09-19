@@ -13,8 +13,8 @@
     delete from sys_role where role_id = #{id}
   </delete>
 
-  <insert id="insert" parameterType="com.test.entry.Role">
+  <insert id="insert">
     insert into sys_role (role_id, role_name, remark, dept_id, is_valid, create_time)
-    values (#{roleId}, #{roleName}, #{remark}, #{deptId}, #{createTime})
+    values (#{role.roleId}, #{role.roleName}, #{role.remark}, #{role.deptId}, #{role.createTime})
   </insert>
 </mapper>
