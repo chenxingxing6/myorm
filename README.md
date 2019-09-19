@@ -5,7 +5,7 @@
 > 1.通过自己实现的ORM,进行增删改查demo   
 > 2.@Param注解解析，支持注解到对象和基本数据类型  
 > 3.用dtd文件定义Mapper.xml文档的合法构建模块   
-> 4.根据resultType，对结果进行处理
+> 4.根据resultType，对结果进行处理    
 > 5.除了xml配置方式外，新加注解方式@Select @Insert @Delete @Update
 
 
@@ -33,7 +33,7 @@
 > 1.解析配置文件，初始化数据库连接，创建sqlSession池，交给SqlSessionFactory管理   
 2.创建Execute,底层调用JDBC操作数据库   
 3.创建MapperProxy代理对象，动态代理Mapper接口   
-4.大体架子搭建好后，可以继续完善，比如@Param注解.   
+4.大体架子搭建好后，可以继续完善，比如@Param注解.       
 5.测试就直接使用单测测试就可以了
 
 ---
