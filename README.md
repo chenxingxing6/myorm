@@ -15,7 +15,7 @@
 2.qlSession是单线程对象，因为它是非线程安全的
 
 
-![avatar]("https://github.com/chenxingxing6/myorm/blob/master/img/1.jpg")
+![avatar]("https://raw.githubusercontent.com/chenxingxing6/myorm/master/img/1.jpg")
 
 ###### 流程描述：  
 1.加载Mybatis全局配置文件并解析，生成Configuration对象和MapperdStatement  
@@ -26,17 +26,22 @@
 ---
 
 #### 三、MyORM实现
-![avatar]("https://github.com/chenxingxing6/myorm/blob/master/img/2.jpg")
+![avatar]("https://raw.githubusercontent.com/chenxingxing6/myorm/master/img/2.jpg")
 
 ##### 我的实现思路
 1.解析配置文件，初始化数据库连接，创建sqlSession池，交给SqlSessionFactory管理   
 2.创建Execute,底层调用JDBC操作数据库   
 3.创建MapperProxy代理对象，动态代理Mapper接口   
-4.大体架子打好后，可以继续完善，比如@Param注解...
+4.大体架子搭建好后，可以继续完善，比如@Param注解...
+5.测试就直接使用单测测试就可以了
 
 ---
 
+#### 四、MyORM项目结构
+![avatar]("https://raw.githubusercontent.com/chenxingxing6/myorm/master/img/3.jpg")
 
+---
+##### 相关资源：
 ```sql
 CREATE TABLE `sys_role` (
   `role_id` bigint(20) NOT NULL AUTO_INCREMENT,
@@ -54,65 +59,184 @@ INSERT INTO cloud_disk.sys_role (role_id, role_name, remark, dept_id, create_tim
 ```
 
 ---
-```java
-package com.test.entry;
 
-import java.io.Serializable;
+##### 4.1 增删改查Demo
+
+![avatar]("https://raw.githubusercontent.com/chenxingxing6/myorm/master/img/4.jpg")
+
+```java
+package com.demo;
+
+import com.alibaba.fastjson.JSON;
+import com.test.entry.Role;
+import com.test.mapper.RoleMapper;
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.apache.ibatis.session.SqlSessionFactoryBuilder;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.lang.ref.WeakReference;
+import java.lang.reflect.Field;
 import java.util.Date;
+import java.util.Random;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @Author: cxx
- * @Date: 2019/9/18 12:37
+ * @Date: 2019/9/18 12:42
  */
-public class User implements Serializable {
-    private Long roleId;
+public class MapperTest {
+    private RoleMapper roleMapper;
 
-    private String roleName;
-
-    private String remark;
-
-    private Long deptId;
-
-    private Date createTime;
-
-    public Long getRoleId() {
-        return roleId;
+    @Before
+    public void init(){
+        // 使用弱引用创建SqlSessionFactoryBuilder,保证下次GC时回收该对象。
+        WeakReference<SqlSessionFactoryBuilder> builder = new WeakReference<>(new SqlSessionFactoryBuilder());
+        String mapxmlPath = "mapper";
+        SqlSessionFactory factory = builder.get().build(mapxmlPath);
+        roleMapper = factory.getMapper(RoleMapper.class);
     }
 
-    public void setRoleId(Long roleId) {
-        this.roleId = roleId;
+    /**
+     * 查询（普通 & 有@param注解）
+     */
+    @Test
+    public void test01(){
+        Role role1 = roleMapper.getRoleById(1L);
+        System.out.println("普通方式："+JSON.toJSONString(role1));
+
+        Role role2 = roleMapper.getRoleByIdAndDeptId(1L, 34L);
+        System.out.println("@Param注解："+JSON.toJSONString(role2));
     }
 
-    public String getRoleName() {
-        return roleName;
+    /**
+     * 删除
+     */
+    @Test
+    public void test02(){
+        int result = roleMapper.deleteById(36L);
+        System.out.println(result >= 1 ? "删除成功" : "删除失败");
     }
 
-    public void setRoleName(String roleName) {
-        this.roleName = roleName;
+    /**
+     * 插入
+     */
+    @Test
+    public void test03(){
+        Role role = new Role();
+        role.setRoleId(Long.valueOf(new Random().nextInt(100)));
+        role.setDeptId(1L);
+        role.setRemark("remark");
+        role.setRoleName("roleName");
+        role.setCreateTime(new Date());
+        int result = roleMapper.insert(role);
+        System.out.println(result >= 1 ? "插入成功" : "插入失败");
     }
 
-    public String getRemark() {
-        return remark;
-    }
-
-    public void setRemark(String remark) {
-        this.remark = remark;
-    }
-
-    public Long getDeptId() {
-        return deptId;
-    }
-
-    public void setDeptId(Long deptId) {
-        this.deptId = deptId;
-    }
-
-    public Date getCreateTime() {
-        return createTime;
-    }
-
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
+    /**
+     * 修改
+     */
+    @Test
+    public void test04(){
+        int result = roleMapper.updateRoleName(10L, "update remark");
+        System.out.println(result >= 1 ? "修改成功" : "修改失败");
     }
 }
 ```
+
+---
+
+##### 4.2 RoleMapper.java
+```java
+package com.test.mapper;
+
+import com.test.entry.Role;
+import org.apache.ibatis.annotations.Param;
+
+/**
+ * @Author: cxx
+ * @Date: 2019/9/18 0:48
+ */
+public interface RoleMapper {
+    public Role getRoleById(Long id);
+
+    public Role getRoleByIdAndDeptId(Long id, @Param("deptId") Long deptId);
+
+    public int deleteById(Long id);
+
+    public int insert(@Param("role") Role role);
+
+    public int updateRoleName(@Param("roleId") Long roleId, @Param("roleName") String name);
+}
+```
+
+---
+##### 4.3 RoleMapper.xml
+```xml
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper SYSTEM "myorm.dtd">
+<mapper namespace="com.test.mapper.RoleMapper">
+  <select id="getRoleById" parameterType="java.lang.Long" resultType ="com.test.entry.Role">
+    select * from sys_role where role_id = #{id}
+  </select>
+
+  <select id="getRoleByIdAndDeptId" resultType ="com.test.entry.Role">
+    select * from sys_role where role_id = #{id} and dept_id = #{deptId}
+  </select>
+
+  <delete id="deleteById" parameterType="java.lang.Long">
+    delete from sys_role where role_id = #{id}
+  </delete>
+
+  <insert id="insert">
+    insert into sys_role (role_id, role_name, remark, dept_id, create_time)
+    values (#{role.roleId}, #{role.roleName}, #{role.remark}, #{role.deptId}, #{role.createTime})
+  </insert>
+
+  <update id="updateRoleName">
+    update sys_role set role_name = #{roleName} where role_id = #{roleId}
+  </update>
+</mapper>
+```
+
+---
+##### 4.4 myorm.dtd 对mapperxml文档的合法构建
+```dtd
+<!ELEMENT mapper (select* | insert* | update* | delete* | sql*)+>
+
+<!ELEMENT select (#PCDATA | select)*>
+
+<!ELEMENT insert (#PCDATA)>
+<!ELEMENT update (#PCDATA)>
+<!ELEMENT delete (#PCDATA)>
+<!ELEMENT sql (#PCDATA)>
+
+<!ATTLIST mapper namespace CDATA #IMPLIED>
+
+<!ATTLIST select
+id CDATA #REQUIRED
+parameterType CDATA #IMPLIED
+resultType CDATA #IMPLIED
+>
+
+<!ATTLIST delete
+id CDATA #REQUIRED
+parameterMap CDATA #IMPLIED
+parameterType CDATA #IMPLIED
+>
+
+<!ATTLIST insert
+id CDATA #REQUIRED
+parameterMap CDATA #IMPLIED
+parameterType CDATA #IMPLIED
+>
+
+<!ATTLIST update
+id CDATA #REQUIRED
+parameterMap CDATA #IMPLIED
+parameterType CDATA #IMPLIED
+>
+```
+
+
