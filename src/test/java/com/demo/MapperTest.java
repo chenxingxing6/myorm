@@ -100,6 +100,5 @@ public class MapperTest {
         }catch (Exception e){
             e.printStackTrace();
         }
-
     }
 }

@@ -1,5 +1,33 @@
 ## 手写ORM
+
 ---
+#### 一、主要完成的功能【基本CURD是可以支持的】
+> 1.通过自己实现的ORM,进行增删改查demo   
+> 2.@Param注解解析，支持注解到对象和基本数据类型  
+> 3.用dtd文件定义Mapper.xml文档的合法构建模块   
+> 4.根据resultType，对结果进行处理
+
+---
+
+#### 二、Mybatis原理
+###### 我们先复习一下Mybatis的实现原理：
+1.SqlSessionFactory是线程安全的   
+2.qlSession是单线程对象，因为它是非线程安全的
+
+
+![avatar]("")
+
+###### 流程描述：  
+1.加载Mybatis全局配置文件并解析，生成Configuration对象和MapperdStatement  
+2.SqlSessionFactoryBuilder通过Configuration对象构建SqlSessionFactory  
+3.通过SqlSessionFactory获取sqlSession  
+4.sqlSession和数据库进行交互
+
+---
+
+#### 三、MyORM实现
+
+
 
 ```sql
 CREATE TABLE `sys_role` (
