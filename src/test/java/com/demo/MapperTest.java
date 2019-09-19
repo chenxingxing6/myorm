@@ -24,12 +24,13 @@ public class MapperTest {
 
         SqlSessionFactory factory = builder.get().build("mapper");
         RoleMapper roleMapper = factory.getMapper(RoleMapper.class);
-        Role role1 = roleMapper.getRoleById(1L);
-        System.out.println(JSON.toJSONString(role1));
+        // Role role1 = roleMapper.getRoleById(1L);
+        // System.out.println(JSON.toJSONString(role1));
 
         Role role2 = roleMapper.getRoleByIdAndDeptId(1L, 34L);
         System.out.println(JSON.toJSONString(role2));
     }
+
 
     public static void main(String[] args) {
         String sql = "select * from sys_role where role_id = #{id} and dept_id = #{dept_id}";

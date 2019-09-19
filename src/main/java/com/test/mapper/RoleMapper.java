@@ -10,5 +10,7 @@ import org.apache.ibatis.annotations.Param;
 public interface RoleMapper {
     public Role getRoleById(Long id);
 
-    public Role getRoleByIdAndDeptId(@Param("id") Long id, @Param("deptId") Long deptId);
+    public Role getRoleByIdAndDeptId(Long id, @Param("deptId") Long deptId);
+
+    public int deleteById(Long id);
 }

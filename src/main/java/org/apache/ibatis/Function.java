@@ -2,6 +2,7 @@ package org.apache.ibatis;
 
 import javafx.util.Pair;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -14,7 +15,7 @@ public class Function {
     private String functionName;
     private String resultType;
     private String parameterType;
-    private Map<Integer/*位置序号*/, Pair<String/*key*/, String/*type*/>> indexParamMap;
+    private Map<String, Object> paramMap;
 
     public String getSql() {
         return sql;
@@ -56,11 +57,11 @@ public class Function {
         this.parameterType = parameterType;
     }
 
-    public Map<Integer, Pair<String, String>> getIndexParamMap() {
-        return indexParamMap;
+    public Map<String, Object> getParamMap() {
+        return paramMap;
     }
 
-    public void setIndexParamMap(Map<Integer, Pair<String, String>> indexParamMap) {
-        this.indexParamMap = indexParamMap;
+    public void setParamMap(Map<String, Object> paramMap) {
+        this.paramMap = paramMap;
     }
 }

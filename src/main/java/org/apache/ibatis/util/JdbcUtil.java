@@ -125,7 +125,10 @@ public class JdbcUtil {
         return resultSet;
     }
 
-    public static boolean execute(String sql, List<Object> params){
+    public static boolean execute(String sql, List<Object> params, Connection c){
+        if (c != null){
+            conn = c;
+        }
         if (sql == null || sql.trim().isEmpty() || sql.trim().toLowerCase().startsWith("select")){
             throw new RuntimeException("你的SQL语句为空或有误");
         }

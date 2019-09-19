@@ -1,15 +1,22 @@
-<!ELEMENT mapper (select|insert|update|delete)>
-<!ELEMENT select (#PCDATA)>
+<!ELEMENT mapper (select* | insert* | update* | delete* | sql*)+>
+
+<!ELEMENT select (#PCDATA | select)*>
+
 <!ELEMENT insert (#PCDATA)>
 <!ELEMENT update (#PCDATA)>
 <!ELEMENT delete (#PCDATA)>
+<!ELEMENT sql (#PCDATA)>
 
-<!ATTLIST mapper namespace CDATA true>
-<!ATTLIST select id CDATA true>
-<!ATTLIST select parameterType CDATA true>
-<!ATTLIST select resultType CDATA true>
+<!ATTLIST mapper namespace CDATA #IMPLIED>
 
-<!ATTLIST delete id CDATA true>
-<!ATTLIST delete parameterType CDATA true>
-<!ATTLIST delete resultType CDATA true>
+<!ATTLIST select
+id CDATA #REQUIRED
+parameterType CDATA #IMPLIED
+resultType CDATA #IMPLIED
+>
 
+<!ATTLIST delete
+id CDATA #REQUIRED
+parameterMap CDATA #IMPLIED
+parameterType CDATA #IMPLIED
+>

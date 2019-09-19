@@ -21,7 +21,8 @@ import java.util.regex.Pattern;
 public class Executor {
     private SqlSession sqlSessionProxy;
     private Map<String, Function> functionMap;
-    private static Pattern pattern = Pattern.compile("\\#\\{(.+?)\\}");
+    private static String regex = "\\#\\{(.+?)\\}";
+    private static Pattern pattern = Pattern.compile(regex);
 
     public Executor(Map<String, Function> functionMap, SqlSession sqlSession){
         this.functionMap = functionMap;
@@ -34,39 +35,26 @@ public class Executor {
             throw new RuntimeException("MapperXml配置文件有误");
         }
         try {
-            Map<Integer/*位置序号*/, Pair<String/*key*/, String/*type*/>> indexParamMap = new HashMap<>();
-            List<String> annotationParams = new ArrayList<>();
-            Annotation[][] annotations = method.getParameterAnnotations();
-            for (Annotation[] annotation : annotations) {
-                for (Annotation a : annotation) {
-                    if (a instanceof Param){
-                        Param param = (Param) a;
-                        annotationParams.add(param.value());
-                    }
-                }
-            }
-            if (!annotationParams.isEmpty()){
-                if (annotationParams.size() != method.getParameterTypes().length){
-                    throw new RuntimeException("参数个数不匹配");
-                }
-                for (int i = 0; i < method.getParameterTypes().length; i++) {
-                    String typeName = method.getParameterTypes()[i].getTypeName();
-                    Pair<String, String> pair= new Pair<>(annotationParams.get(i), typeName);
-                    indexParamMap.put(i+1, pair);
-                }
-                function.setIndexParamMap(indexParamMap);
-            }
+            function.setParamMap(getParamsMap(method, args));
+
+            List<Object> parseArgs = new ArrayList<>();
             Matcher matcher = pattern.matcher(function.getSql());
+            Map<String, Object> paramMap = function.getParamMap();
+            int i = 0;
             while (matcher.find()){
                 String key = matcher.group(1);
+                if (paramMap.get(key) !=null){
+                    parseArgs.add(paramMap.get(key));
+                }else {
+                    parseArgs.add(paramMap.get(i + ""));
+                }
+                i++;
             }
-            String sql = function.getSql().replaceAll("\\#\\{(.+?)\\}", "?");
-            List<Object> params = new ArrayList<>();
-            params.addAll(Arrays.asList(args));
-            ResultSet resultSet = JdbcUtil.query(sql, params, connection);
+            String sql = function.getSql().replaceAll(regex, "?");
+            ResultSet resultSet = JdbcUtil.query(sql, parseArgs, connection);
             Class clazz = Class.forName(function.getResultType());
             this.sqlSessionProxy.setUse(true);
-            return (T)handler(resultSet, clazz);
+            return (T)handlerResult(resultSet, clazz);
         }catch (Exception e){
             e.printStackTrace();
             this.sqlSessionProxy.setUse(false);
@@ -74,7 +62,54 @@ public class Executor {
         }
     }
 
-    private Object handler(ResultSet rs, Class<?> clazz){
+    /**
+     * 获取参数Map（@param进行解析）
+     * @return
+     */
+    private Map<String, Object> getParamsMap(Method method, Object[] args){
+        // 该集合用于记录参数索引与参数名称的对应关系
+        final SortedMap<Integer, String> map = new TreeMap<Integer, String>();
+        // 获取所有@Param注解
+        String name = null;
+        Annotation[][] annotations = method.getParameterAnnotations();
+
+        // 遍历方法参数
+        int paramIndex = 0;
+        for (Annotation[] annotation : annotations) {
+            for (Annotation a : annotation) {
+                if (a instanceof Param){
+                    Param param = (Param) a;
+                    name = param.value();
+                }
+            }
+            // 没有@param注解 (0,1,2)
+            if (name == null){
+                name = String.valueOf(map.size());
+            }
+            map.put(paramIndex, name);
+            paramIndex ++;
+        }
+
+        // 参数个数
+        int paramCount = map.entrySet().size();
+        Map<String, Object> param = new HashMap<>();
+        if(args == null || paramCount == 0){
+        }else {
+            for (Map.Entry<Integer, String> entry : map.entrySet()) {
+                param.put(entry.getValue(), args[entry.getKey()]);
+            }
+        }
+        return param;
+    }
+
+
+    /**
+     * 返回值进行处理
+     * @param rs
+     * @param clazz
+     * @return
+     */
+    private Object handlerResult(ResultSet rs, Class<?> clazz){
         Object obj = null;
         try {
             while (rs.next()){
@@ -106,6 +141,9 @@ public class Executor {
         return obj;
     }
 
+    /**
+     * 下划线转驼峰
+     */
     private static Pattern linePattern = Pattern.compile("_(\\w)");
     public static String lineToHump(String str){
         str = str.toLowerCase();
