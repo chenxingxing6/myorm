@@ -26,3 +26,9 @@ id CDATA #REQUIRED
 parameterMap CDATA #IMPLIED
 parameterType CDATA #IMPLIED
 >
+
+<!ATTLIST update
+id CDATA #REQUIRED
+parameterMap CDATA #IMPLIED
+parameterType CDATA #IMPLIED
+>

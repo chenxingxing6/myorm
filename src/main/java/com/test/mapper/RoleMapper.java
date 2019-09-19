@@ -15,4 +15,6 @@ public interface RoleMapper {
     public int deleteById(Long id);
 
     public int insert(@Param("role") Role role);
+
+    public int updateRoleName(@Param("roleId") Long roleId, @Param("roleName") String name);
 }

@@ -58,9 +58,17 @@ public class Executor {
                 }else {
                     // 参数为对象，和xml里面的字段一一映射
                     if (paramMap.entrySet().size() != xmlParamCount){
-                        Object obj = paramMap.get(prefix);
-                        parseArgs.add("");
-                        // TODO: 2019/9/19
+                        try {
+                            Object obj = paramMap.get(prefix);
+                            Field field = obj.getClass().getDeclaredField(key);
+                            field.setAccessible(true);
+                            parseArgs.add(field.get(obj));
+                        }catch (Exception e){
+                            e.printStackTrace();
+                            parseArgs.add(null);
+                            continue;
+                        }
+
                     }else {
                         parseArgs.add(paramMap.get(i + ""));
                     }
