@@ -206,6 +206,7 @@ public interface RoleMapper {
   </update>
 </mapper>
 ```
+注意：@Param()中的value一定要和实体对象Role字段相同。
 
 ---
 ##### 4.4 myorm.dtd 对mapperxml文档的合法构建
