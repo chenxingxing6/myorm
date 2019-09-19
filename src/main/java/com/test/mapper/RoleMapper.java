@@ -2,6 +2,7 @@ package com.test.mapper;
 
 import com.test.entry.Role;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 
 /**
  * @Author: cxx
@@ -17,4 +18,7 @@ public interface RoleMapper {
     public int insert(@Param("role") Role role);
 
     public int updateRoleName(@Param("roleId") Long roleId, @Param("roleName") String name);
+
+    @Select("select * from sys_role where role_id = #{id}")
+    public Role selectRoleById(Long id);
 }

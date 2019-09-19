@@ -47,7 +47,7 @@ public class MapperTest{
      * 插入
      */
     @Test
-    public void test03(){
+    public void test02(){
         Role role = new Role();
         role.setRoleId(Long.valueOf(new Random().nextInt(100)));
         role.setDeptId(1L);
@@ -62,7 +62,7 @@ public class MapperTest{
      * 修改
      */
     @Test
-    public void test04(){
+    public void test03(){
         int result = roleMapper.updateRoleName(10L, "update remark");
         System.out.println(result >= 1 ? "修改成功" : "修改失败");
     }
@@ -71,11 +71,19 @@ public class MapperTest{
      * 删除
      */
     @Test
-    public void test02(){
+    public void test04(){
         int result = roleMapper.deleteById(10L);
         System.out.println(result >= 1 ? "删除成功" : "删除失败");
     }
 
+    /**
+     * 通过注解方式实现@Select
+     */
+    @Test
+    public void test05(){
+        Role role = roleMapper.selectRoleById(1L);
+        System.out.println(JSON.toJSONString(role));
+    }
 
     /*public static void main(String[] args) {
         String sql = "select * from sys_role where role_id = #{id} and dept_id = #{dept_id}";

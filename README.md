@@ -6,6 +6,8 @@
 > 2.@Param注解解析，支持注解到对象和基本数据类型  
 > 3.用dtd文件定义Mapper.xml文档的合法构建模块   
 > 4.根据resultType，对结果进行处理
+> 5.除了xml配置方式外，新加注解方式@Select @Insert @Delete @Update
+
 
 ---
 
@@ -246,6 +248,47 @@ id CDATA #REQUIRED
 parameterMap CDATA #IMPLIED
 parameterType CDATA #IMPLIED
 >
+```
+
+---
+4.5 通过注解方式【优先使用注解，没注解使用xml配置】
+```html
+@Select("select * from sys_role where role_id = #{id}")
+public Role selectRoleById(Long id);
+
+
+if (method.getAnnotations().length !=0 && method.getAnnotations().length > 1){
+    throw new RuntimeException("该方法上只能有一个注解");
+}
+if (method.getAnnotations().length == 1){
+    Function function = new Function();
+    String sql = "";
+    String sqlType = "";
+    if (method.isAnnotationPresent(Insert.class)){
+        Insert insert = method.getAnnotation(Insert.class);
+        sql = insert.value();
+        sqlType = "insert";
+
+    }else if (method.isAnnotationPresent(Delete.class)){
+        Delete insert = method.getAnnotation(Delete.class);
+        sql = insert.value();
+        sqlType = "delete";
+    }else if (method.isAnnotationPresent(Update.class)){
+        Update insert = method.getAnnotation(Update.class);
+        sql = insert.value();
+        sqlType = "update";
+    }else if (method.isAnnotationPresent(Select.class)){
+        Select insert = method.getAnnotation(Select.class);
+        sql = insert.value();
+        sqlType = "select";
+    }
+    function.setSql(sql);
+    function.setFunctionName(method.getName());
+    function.setParameterType("");
+    function.setSqlType(sqlType);
+    function.setResultType(method.getReturnType().getTypeName());
+    functionMap.put(method.getName(), function);
+}    
 ```
 
 ---

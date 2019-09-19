@@ -2,7 +2,7 @@ package org.apache.ibatis.executor;
 
 import javafx.util.Pair;
 import org.apache.ibatis.Function;
-import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.*;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.util.JdbcUtil;
 
@@ -30,9 +30,43 @@ public class Executor {
     }
 
     public <T> T run(Method method, Object[] args, Connection connection){
+        // 注解优先使用@Select @Insert @Delete @Update
+        if (method.getAnnotations().length !=0 && method.getAnnotations().length > 1){
+            throw new RuntimeException("该方法上只能有一个注解");
+        }
+        if (method.getAnnotations().length == 1){
+            Function function = new Function();
+            String sql = "";
+            String sqlType = "";
+            if (method.isAnnotationPresent(Insert.class)){
+                Insert insert = method.getAnnotation(Insert.class);
+                sql = insert.value();
+                sqlType = "insert";
+
+            }else if (method.isAnnotationPresent(Delete.class)){
+                Delete insert = method.getAnnotation(Delete.class);
+                sql = insert.value();
+                sqlType = "delete";
+            }else if (method.isAnnotationPresent(Update.class)){
+                Update insert = method.getAnnotation(Update.class);
+                sql = insert.value();
+                sqlType = "update";
+            }else if (method.isAnnotationPresent(Select.class)){
+                Select insert = method.getAnnotation(Select.class);
+                sql = insert.value();
+                sqlType = "select";
+            }
+            function.setSql(sql);
+            function.setFunctionName(method.getName());
+            function.setParameterType("");
+            function.setSqlType(sqlType);
+            function.setResultType(method.getReturnType().getTypeName());
+            functionMap.put(method.getName(), function);
+        }
+
         Function function = functionMap.get(method.getName());
         if (function == null){
-            throw new RuntimeException("MapperXml配置文件有误");
+            throw new RuntimeException("注解或Xml配置文件有误");
         }
         try {
             function.setParamMap(getParamsMap(method, args));
@@ -76,7 +110,7 @@ public class Executor {
                 i++;
             }
             String sql = function.getSql().replaceAll(regex, "?");
-            if (!isQuery(sql)){
+            if (!isQuery(function.getSqlType())){
                 this.sqlSessionProxy.setUse(true);
                 return (T) JdbcUtil.execute(sql, parseArgs, connection);
             }
@@ -91,10 +125,9 @@ public class Executor {
         }
     }
 
-    private boolean isQuery(String sql){
-        sql = sql.toLowerCase();
-        String prefix = sql.substring(0, sql.indexOf(" "));
-        switch (prefix){
+    private boolean isQuery(String sqlType){
+        sqlType = sqlType.toLowerCase();
+        switch (sqlType){
             case "create":
             case "alter":
             case "drop":
