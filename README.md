@@ -40,7 +40,6 @@
 ![avatar](https://raw.githubusercontent.com/chenxingxing6/myorm/master/img/3.jpg)
 
 ---
-##### 相关资源：
 ```sql
 CREATE TABLE `sys_role` (
   `role_id` bigint(20) NOT NULL AUTO_INCREMENT,
@@ -50,11 +49,12 @@ CREATE TABLE `sys_role` (
   `create_time` datetime DEFAULT NULL COMMENT '创建时间',
   PRIMARY KEY (`role_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 COMMENT='角色'
+```
 
+```sql
 INSERT INTO cloud_disk.sys_role (role_id, role_name, remark, dept_id, create_time) VALUES (1, '超级管理员', '最高权限', 34, '2018-07-31 19:27:42');
 INSERT INTO cloud_disk.sys_role (role_id, role_name, remark, dept_id, create_time) VALUES (2, '管理员', '权限比较少', 9, '2018-07-31 19:28:58');
 INSERT INTO cloud_disk.sys_role (role_id, role_name, remark, dept_id, create_time) VALUES (3, 'IT经理', 'IT用户使用', 34, '2018-12-30 22:42:15');
-
 ```
 
 ---
@@ -151,8 +151,8 @@ public class MapperTest {
 }
 ```
 
----
 
+---
 ##### 4.2 RoleMapper.java
 ```java
 package com.test.mapper;
@@ -176,6 +176,7 @@ public interface RoleMapper {
     public int updateRoleName(@Param("roleId") Long roleId, @Param("roleName") String name);
 }
 ```
+
 
 ---
 ##### 4.3 RoleMapper.xml
@@ -206,6 +207,7 @@ public interface RoleMapper {
 </mapper>
 ```
 注意：@Param()中的value一定要和实体对象Role字段相同。
+
 
 ---
 ##### 4.4 myorm.dtd 对mapperxml文档的合法构建
@@ -245,5 +247,7 @@ parameterMap CDATA #IMPLIED
 parameterType CDATA #IMPLIED
 >
 ```
+
+---
 
 
