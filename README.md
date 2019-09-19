@@ -14,8 +14,7 @@
 1.SqlSessionFactory是线程安全的   
 2.qlSession是单线程对象，因为它是非线程安全的
 
-
-![avatar]("https://raw.githubusercontent.com/chenxingxing6/myorm/master/img/1.jpg")
+![avatar](https://raw.githubusercontent.com/chenxingxing6/myorm/master/img/1.jpg)
 
 ###### 流程描述：  
 1.加载Mybatis全局配置文件并解析，生成Configuration对象和MapperdStatement  
@@ -26,7 +25,7 @@
 ---
 
 #### 三、MyORM实现
-![avatar]("https://raw.githubusercontent.com/chenxingxing6/myorm/master/img/2.jpg")
+![avatar](https://raw.githubusercontent.com/chenxingxing6/myorm/master/img/2.jpg)
 
 ##### 我的实现思路
 1.解析配置文件，初始化数据库连接，创建sqlSession池，交给SqlSessionFactory管理   
@@ -38,7 +37,7 @@
 ---
 
 #### 四、MyORM项目结构
-![avatar]("https://raw.githubusercontent.com/chenxingxing6/myorm/master/img/3.jpg")
+![avatar](https://raw.githubusercontent.com/chenxingxing6/myorm/master/img/3.jpg)
 
 ---
 ##### 相关资源：
@@ -62,11 +61,11 @@ INSERT INTO cloud_disk.sys_role (role_id, role_name, remark, dept_id, create_tim
 
 ##### 4.1 增删改查Demo
 
-![avatar]("https://raw.githubusercontent.com/chenxingxing6/myorm/master/img/4.jpg")
+![avatar](https://raw.githubusercontent.com/chenxingxing6/myorm/master/img/4.jpg)
 
 ---
 
-![avatar]("https://raw.githubusercontent.com/chenxingxing6/myorm/master/img/5.jpg")
+![avatar](https://raw.githubusercontent.com/chenxingxing6/myorm/master/img/5.jpg)
 
 
 ---
